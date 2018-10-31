@@ -1,0 +1,630 @@
+</!doctype html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://distill.pub/template.v2.js"></script>
+  <style><%= require("raw-loader!../static/style.css") %></style>
+</head>
+
+<body>
+
+<d-front-matter>
+  <script type="text/json">{
+  "title": "Open Questions about Generative Adversarial Networks",
+  "description": "What we'd like to find out about GANs that we don't know yet.",
+  "password": "svgs",
+  "authors": [
+    {
+      "author": "Augustus Odena",
+      "authorURL": "https://https://augustusodena.github.io/",
+      "affiliation": "Google Brain Team",
+      "affiliationURL": "https://g.co/brain"
+    }
+  ],
+  "katex": {
+    "delimiters": [
+      {
+        "left": "$",
+        "right": "$",
+        "display": false
+      },
+      {
+        "left": "$$",
+        "right": "$$",
+        "display": true
+      }
+    ]
+  }
+  }</script>
+</d-front-matter>
+
+<d-title>
+  <h1>Open Questions about Generative Adversarial Networks</h1>
+  <p>What we'd like to find out about GANs that we don't know yet.</p>
+</d-title>
+
+<d-article>
+
+  <h2>Introduction</h2>
+
+  <p>
+    By some metrics, research on Generative Adversarial Networks (GANs) has progressed substantially in the past 2 years.
+    Practical improvements to image synthesis models are being made <d-cite key="ACGAN,SAGAN,SPECTRALNORM,BIGGAN"></d-cite> almost too quickly to keep up with:
+  </p>
+
+  <figure class="l-body">
+    <img src="images/gan_progress.png">
+  </figure>
+
+  <p>
+    By other metrics, less has happened - for instance, there is still widespread disagreement about how GANs should be evaluated.
+    Given that current image synthesis benchmarks seem somewhat saturated, we think now is a good time to reflect on research goals for this sub-field.
+    One way to accomplish this reflection is to make a list of 'open problems', as has been done in other scientific fields <d-cite key="BAEZ,NOTFAMOUS,HILBERT,SMALE"></d-cite>.
+  </p>
+
+  <p>
+    This article is about open research problems related to GANs.
+    Our aim as authors is to encourage other researchers to work on these problems
+    <d-footnote>We also believe that writing this article has clarified our thinking about
+      GANs, and we would encourage other researchers to write similar articles about their own sub-fields.</d-footnote>.
+    We assume a fair amount of background (or willingness to look things up)
+    because we reference too many results to explain all those results in detail.
+    The selection of problems is also biased toward our specific interests.
+  </p>
+
+
+  <p>
+    The structure of this article is as follows:
+    There are several sections, each of which corresponds to a problem.
+    Each section can be read independently of the others (though inevitably the problems will be related in certain ways)
+    and may require different background.
+    In each section, we will first give context for the problem and explain why we think it is important.
+    Then we still state the problem as precisely as we are able.
+    We may then speculate about possible answers to the problem or potential strategies for approaching it
+    <d-footnote>
+      We'd like to emphasize that our conjectures are just that - meant to start a conversation rather than
+      to finish one.
+      We'd also like to emphasize that our speculation about how to address the problem might be misleading!
+      On many of these topics we likely lack knowledge of relevant subfields, and even if we don't,
+      our speculations might be wrong.
+      We'd encourage people interested in working on these problems to treat our speculations as a jumping off
+      point rather than a prescription for success.
+    </d-footnote>.
+  </p>
+
+
+  <h2>What are the Trade-Offs Between GANs and other Generative Models?</h2>
+  <p>
+    There are other types of generative models besides GANs.
+    At present, two other model families are popular: Flow Models and Autoregressive Models
+    <d-footnote>
+      This statement shouldn't be taken too literally.
+      Those are useful terms for describing fuzzy clusters in 'model-space', but there are models
+      that aren't easy to describe as belonging to just one of those clusters.
+    </d-footnote>.
+    Roughly speaking, Flow Models<d-cite key="NICE,REALNVP,GLOW,NFTTUTORIAL"></d-cite> apply a
+    stack of invertible transformations to a sample from the prior
+    so that exact log-likelihoods of observations can be computed.
+    Autoregressive Models<d-cite key="PIXELRNN,PIXELCNN,PIXELCNNPP,WAVENET"></d-cite> factorize the
+    distribution over observations into conditional distributions
+    and process one component of the observation at a time (for images, they may process one pixel
+    at a time.)
+    Recent research<d-cite key="GLOW,PROGRESSIVEGAN"></d-cite> suggests that these models have different
+    performance characteristics and trade-offs.
+    We think that accurately characterizing these trade-offs and deciding whether they are intrinsic
+    to the model families is an interesting open question.
+  </p>
+
+  <p>
+    For concreteness, let's temporarily focus on the difference in computational cost between GANs and Flow Models.
+    At first glance, Flow Models seem like they might make GANs unnecessary.
+    Flow Models allow for exact log-likelihood computation and exact inference,
+    so if training Flow Models and GANs had the same computational cost, GANs might not be useful.
+    A lot of effort is spent on training GANs strictly as generative models,
+    so it seems like we should care about whether Flow Models make GANs obsolete
+    <d-footnote>
+      Even in this case, there might still be other reasons to use adversarial training in contexts like
+      image-to-image translation.
+      It also might still make sense to combine adversarial training with maximum-likelihood training.
+    </d-footnote>.
+  </p>
+
+  <p>
+    However, there seems to be a substantial gap between the computational cost of training GANs and Flow Models.
+    To estimate the magnitude of this gap, we can consider two models trained on datasets of human faces.
+    In GLOW<d-cite key="GLOW"></d-cite>, a model trained to generate celebrity faces is trained on
+    40 GPUs for 2 weeks, using about 200 million parameters, to generate 256x256 images.
+    In Progressive GANs<d-cite key="PROGRESSIVEGAN"></d-cite>, a GAN is trained on a similar face dataset
+    with 8 GPUs for 4 days, using about 46 million parameters, to generate 1024x1024 images.
+    Roughly speaking, the Flow Model took 17 times more GPU days and 4 times more parameters
+    to generate images with 16 times fewer pixels.
+    This comparison is not perfect
+    <d-footnote>
+    For instance, it's possible that the progressive growing
+    technique could be applied to Flow Models as well.
+    </d-footnote>,
+    but it gives you a sense of the state of things.
+  </p>
+
+  <p>
+    Why are the Flow Models less efficient?
+    We can think of two reasons:
+    First, maximum likelihood training might be computationally harder to do than adversarial training.
+    In particular, if any element of your training set is assigned zero probability by your generative model,
+    you will be penalized infinitely harshly!
+    A GAN generator is allowed to allocate zero probability to many elements of the training
+    set, as long as the discriminator can't tell that it has done so.
+
+    Second, normalizing flows might be an inefficient way to represent certain functions.
+    Section 6.1 of <d-cite key="NORMALIZINGFLOWS"></d-cite> does some small experiments on expressivity, but at
+    present we're not aware of any in-depth analysis of this question.
+  </p>
+
+  <p>
+    We've discussed the trade-off between GANs and Flow Models, but what about Autoregressive Models?
+    It turns out that Autoregressive Models can be expressed as Flow Models
+    (because they are both reversible) that are not parallelizable<d-cite key="NFTTUTORIAL"></d-cite>.
+    It also turns out that Autoregressive Models are more time and parameter efficient than Flow Models.
+    Thus, GANs are parallel and efficient but not reversible,
+    Flow Models are reversible and parallel but not efficient, and 
+    Autoregressive models are reversible and efficient, but not parallelizable.
+    We can thus state our open problem:
+  </p>
+
+  <p>
+    <b>
+      <big>
+        What are the fundamental trade-offs between GANs and other generative models?
+        In particular, can we make some sort of CAP Theorem<d-cite key="CAPTHEOREM"></d-cite> type statement about
+        reversibility, paralellism, and parameter/time efficiency?
+      </big>
+    </b>
+  </p>
+
+  <p>
+    One way to approach this problem could be to study more models that are a hybrid of multiple model families.
+    This has been considered for hybrid GAN/Flow Models<d-cite key="FLOWGAN,FLOWGAN2"></d-cite>, but we think that
+    this approach is still underexplored.
+
+    We're also not sure about whether maximum likelihood training is necessarily harder than GAN training.
+    It's true that placing zero mass on a training data point is not explicitly prohibited under the
+    GAN training loss, but it's also true that a sufficiently powerful discriminator will be able
+    to do better than chance if the generator does this.
+    It does seem like GANs are learning distributions of low support in practice<d-cite key="CONDITIONING"></d-cite> though.
+
+    Ultimately, we do suspect that Flow Models are fundamentally less expressive per-parameter than
+    arbitrary decoder functions, and we suspect that this is provable under certain assumptions.
+  </p>
+
+
+  <h2>What Sorts of Distributions Can we Expect GANs to Model?</h2>
+  <p>
+      Most experimental work on GANs deals with image synthesis.
+      In particular, people train GANs on a handful of standard (in the Deep Learning community) image datasets:
+      MNIST<d-cite key="MNIST"></d-cite>,
+      CIFAR-10<d-cite key="CIFAR"></d-cite>,
+      STL-10<d-cite key="STL"></d-cite>,
+      CelebA<d-cite key="CELEBA"></d-cite>,
+      and Imagenet<d-cite key="IMAGENET"></d-cite>.
+
+      There is some folklore about which of these datasets is 'easiest' to model.
+      In particular, MNIST and CelebA are considered easier than Imagenet, CIFAR-10, or STL-10 due to being
+      'extremely regular'<d-cite key="COLINTWEET"></d-cite>.
+      Others have noted that 'a high number of classes is what makes
+      ImageNet synthesis difficult for GANs'<d-cite key="ACGAN"></d-cite>.
+      These observations are supported by the empirical fact that the state-of-the-art image
+      synthesis model on CelebA<d-cite key="PROGRESSIVEGAN"></d-cite> generates images that seem
+      substantially more convincing than the state-of-the-art image synthesis model on
+      Imagenet<d-cite key="BIGGAN"></d-cite>. 
+  </p>
+
+  <p>
+    However, we've had to come to these conclusions as a field through the laborious and noisy process of
+    trying to train GANs on ever larger and more complicated datasets, and it's non-trivial to find
+    good datasets to test on, so we're currently stuck with empirical knowledge of the datasets that
+    happened to be laying around for object recognition.
+    As with any science, we would like to have a simple theory that explains our experimental observations.
+    Ideally, we could look at a dataset, perform some computations without ever actually
+    training a generative model, and then say something like 'this dataset will be
+    easy for a GAN to model, but not a VAE'.
+    There has been some progress on this topic<d-cite key="GANSEQUAL,DISCONNECTED"></d-cite>,
+    but we feel that more can be done.
+    We can now state the problem:
+  </p>
+
+  <p>
+    <b>
+      <big>Given a distribution, what can we say about how hard it will be for a GAN to model that distribution?
+      </big>
+    </b>
+  </p>
+
+  <p>
+    We might ask the following related questions as well:
+    What do we mean by 'model'? Are we satisfied with a low-support representation, or do we want a true density model?
+    Are there distributions that a GAN can never learn to model?
+    Are there distributions that are learnable for a GAN in principle, but are not
+    efficiently learnable, for some reasonable model of resource-consumption?
+    Are the answers to these questions actually any different for GANs than they are for other
+    'generative models'?
+  </p>
+
+  <p>
+    We propose two strategies for answering these questions:
+    The first strategy is the study of synthetic datasets.
+    In <d-cite key="GANSEQUAL"></d-cite> the authors create a dataset of synthetic triangles -- we feel that this
+    angle is under-explored.
+    Synthetic datasets can be parameterized by quantities we want to study, such as connectedness or smoothness. 
+    Given such a parameterization, we can conduct a systematic study of how those properties affect learnability.
+    The usefulness of such a dataset would not be limited to studying GANs.
+
+    The second strategy is to take existing theoretical results and modify the assumptions to account
+    for different properties of the dataset.
+    For instance, one could take results about GANs that apply given unimodal data distributions and see
+    what happens to them when the data distribution becomes multi-modal.
+  </p>
+
+
+  <h2>How Can we Scale Adversarial Training Beyond Image Synthesis?</h2>
+  <p>
+    Aside from applications like image-to-image
+    translation<d-cite key="CYCLEGAN"></d-cite>
+    and domain-adaptation<d-cite key="DOMAINADAPTATION"></d-cite>
+    most GAN successes have been in image synthesis.
+    There have been a few attempts at using GANs to model other types of data, which
+    we briefly mention here for context.
+  </p>
+
+  <p>
+    In the text domain, there are -- broadly speaking -- two approaches to using
+    GANs. The first is to have the GAN training procedure act only on continuous
+    representations of the discrete data, as in<d-cite key="WGANGP"></d-cite>.
+    The second is use an actual discrete model and attempt to train the GAN using
+    some kind of gradient estimation technique as in<d-cite key="SEQGAN"></d-cite> 
+    Other, more sophisticated treatments exist<d-cite key="MASKGAN"></d-cite>,
+    but as far as we can tell, none of them produce results that are competitive (in terms of perplexity)
+    with simple LSTM<d-cite key="LSTM"></d-cite> language models.
+  </p>
+
+  <p>
+    What about other non-euclidean structured data, like graphs?
+    The study of this type of data is called geometric deep
+    learning<d-cite key="GEOMETRICDEEPLEARNING"></d-cite>.
+    Non-GAN deep learning techniques have not had much success here.
+    This makes it harder to disentangle two potentially confounding factors:
+    First, GANs might struggle because all deep learning techniques struggle on such data.
+    Second, GANs might struggle because something intrinsic to GANs
+    make it hard to model data with a geometric structure.
+    The one relevant paper we could find is<d-cite key="NETGAN"></d-cite>, in which
+    the generator produces and the discriminator critiques random walks
+    that are meant to resemble those samples from a source graph.
+  </p>
+
+  <p>
+    The audio domain might be the one in which GANs are closest to achieving the success
+    they've enjoyed with images.
+    The first serious attempt at applying GANs to unsupervised audio synthesis
+    is<d-cite key="AUDIOGAN"></d-cite>, in which the authors operate in the time domain
+    and make a variety of special allowances for the fact that they are operating on audio.
+    There is an anonymous submission to a recent conference that even suggests GANs can
+    outperform autoregressive models on some perceptual metrics<d-cite key="GANSYNTH"></d-cite>.
+    Nevertheless, image datasets are clearly the easiest for present GAN models.
+    This leads us to the statement of the problem:
+  </p>
+
+    <p>
+      <b>
+        <big>
+          How can GANs be made to perform well on non-image datasets?
+          How much success on image datasets relates to the implicit priors over the images
+          given by the structure of GAN generators?
+          Does scaling GANs to these other types of datasets require new techniques
+          for training GANs, or does it simply require better implicit priors for each domain?
+        </big>
+      </b>
+    </p>
+
+    <p>
+      For unstructured continuous data, we believe that GANs will eventually achieve the same
+      level of success they're currently achieving in image synthesis.
+      We also believe that achieving this will require better hand-designed implicit priors
+      for each domain.
+      The path to success here (in our opinion) lies in thinking hard about what sort of implicit
+      priors make sense and are computationally feasible in each domain of interest.
+
+      For structured data or data that is not continuous, we're less sure.
+      If GANs are to work well for generating text or graphs,
+      we think that fundamental improvements to the GAN training procedure are needed.
+      In principle there is no reason that both the generator and discriminator can't be
+      agents trained with reinforcement learning.
+      Perhaps the only real obstacle to making this work is computational resources<d-cite key="DOTA"></d-cite>.
+    </p>
+
+
+  <h2>What can we Say About the Global Convergence of the Training Dynamics?</h2>
+  <p>
+    Under certain assumptions
+    <d-footnote>
+      These assumptions are very strict.
+      The referenced paper assumes (roughly speaking) that 
+      the equilbrium we are looking for exists and that
+      we are already very close to it.
+    </d-footnote>,
+    the standard simultaneous SGD algorithm for
+    training GANs is locally asymptotically stable<d-cite key="LOCALLYSTABLE"></d-cite>.
+    Not all GAN variants have this property, but many do
+    <d-cite key="WHICHMETHODSCONVERGE"></d-cite>.
+
+    It's hard to prove interesting things about the fully general case,
+    because the discriminator loss as a function of the discriminator parameters is non-convex,
+    and similarly with the generator.
+    Nevertheless, we would like to make statements about GAN training that distinguish the difficulties
+    associated with nonconvexity from the difficulties of simultaneous SGD.
+
+    There has been nontrivial progress on this question.
+    Thus, we will state the problem here and move related work to the section where we discuss potential solutions:
+  </p>
+
+    <p>
+      <b>
+        <big>
+          Under what simplifying assumptions can we prove that GANs are globally convergent?
+          Which theoretical analyses of approximate neural network convergence can be applied to GANs?
+        </big>
+      </b>
+    </p>
+
+  <p>
+    Here we discuss possible strategies for solving this problem.
+    Broadly speaking, there are 3 existing techniques, all of which have generated 
+    promising results but none of which have been studied to completion:
+  </p>
+
+  <p>
+    The first strategy is to try making statements about global convergence properties of GANs where the generator and
+    discriminator are simplified (e.g. we can assume the discriminator is linear).
+    One such simplified model is called the LGQ GAN<d-cite key="LGQ"></d-cite>.
+    In the LGQ GAN the generator is linear, the distribution to be modeled is Gaussian, and the discriminator is quadratic.
+    A technique called 'crossing the curl'<d-cite key="CROSSINGTHECURL"></d-cite> or
+    Symplectic Gradient Adjustment<d-cite key="SGA"></d-cite> is shown,
+    according to Variational Inequality Theory<d-cite key="CROSSINGTHECURL"></d-cite> and under restrictive assumptions
+    <d-footnote>
+      Among other things, it's assumed that we can first learn the means of the Gaussian and then learn the variances.
+    </d-footnote>,
+    to be globally convergent for the LGQ GAN.
+    It seems promising to gradually relax the assumptions to see what happens.
+    One step in this direction is to move away from unimodal distributions.
+    This is a natural relaxation to study, because 'mode collapse' is a standard GAN pathology.
+    In<d-cite key="LIMITATIONS"></d-cite>, mixtures of Gaussians are considered,
+    and it's shown that following first order gradient steps causes divergence, while taking optimal steps
+    for the discriminator allows for convergence.
+  </p>
+
+  <p>
+    The second strategy is to  apply techniques from analyzing normal neural networks (which are also non-convex)
+    to answer slightly easier but still interesting questions about convergence of GANs.
+    For instance, it's argued in<d-cite key="LOSSSURFACE"></d-cite> that the non-convexity
+    of deep neural networks is not as much of an optimization bottleneck as you might imagine
+    <d-footnote>
+      A fact that practitioners already kind of suspected.
+    </d-footnote>,
+    because low-quality local minima of the loss function
+    become exponentially rare as a function of the network size. 
+    It seems worthwhile to check whether this analysis can be 'lifted into GAN space'.
+    In fact, taking theoretical analyses of deep neural networks used as classifiers and attempting to
+    apply these analyses to GANs seems to us a promising meta-algorithm for making progress in this sub-field.
+  </p>
+
+  <p>
+    The final strategy is to model GAN training using notions from game theory<d-cite key="GANGS,BEYONDLOCAL,CHECKHOV"></d-cite>
+    These techniques yield training procedures that provably converge to some kind of approximate nash equilibrium,
+    but do so using unreasonably large resource constraints.
+    The 'obvious' next step in this case is to try and whittle down those resource constraints.
+  </p>
+
+
+
+  <h2>How Should we Evaluate GANs and When Should we Use Them?</h2>
+
+  <p>
+    There is substantial confusion about how GANs should be evaluated.
+    Two popular quantitative metrics are the Inception Score and the
+    FID<d-cite key="IMPROVEDTECHNIQUES,FID"></d-cite>.
+    Both these scores use a pre-trained image classifier and both have
+    known issues <d-cite key="INCEPTIONSCOREBAD,FIDBAD"></d-cite>.
+    An especially common criticism is that these scores measure
+    'sample quality' and don't really capture 'sample diversity'.
+    <d-cite key="ACGAN"></d-cite> propose using MS-SSIM<d-cite key="MSSSIM"></d-cite> to
+    separately evaluate diversity, but this technique has some issues and hasn't really caught on. 
+    <d-cite key="AIS"></d-cite> propose putting a Gaussian observation model on the outputs
+    of a GAN and using annealed importance sampling<d-cite key="AIS2"></d-cite> to estimate
+    the log likelihood under this model, but <d-cite key="FLOWGAN"></d-cite> show that
+    estimates computed this way are inaccurate in the case where the GAN generator is also a flow model
+    <d-footnote>
+      The generator being a flow model allows for computation of exact log-likelihoods in this case.
+    </d-footnote>.
+    <d-cite key="GEOMETRYSCORE"></d-cite> suggest computing geometric properties of the generated data manifold
+    and comparing those properties to the real data.
+    <d-cite key="PRGAN"></d-cite> attempt to measure both the 'precision' and 'recall' of GANs.
+  </p>
+
+  <p>
+    Those are just a small fraction of the proposed GAN evaluation schemes.
+    Though the Inception Score and FID are relatively popular, evaluating GANs is clearly less of a settled
+    issue than evaluating e.g., image classifiers.
+    Ultimately, we think that confusion about <i>how to evaluate</i> GANs stems from confusion about
+    <i>when to use GANs</i>.
+    Thus, we have bundled those two questions into one:
+  </p>
+
+  <p>
+    <b>
+      <big>
+        What tasks are GANs uniquely suited for, compared to other generative models?
+        How should we evaluate performance on these tasks?
+      </big>
+    </b>
+  </p>
+
+  <p>
+    What should we use GANs for?
+    If you want an actual density model, we think that it makes more sense to use maximum likelihood estimation.
+    There is now good experimental evidence that GANs learn a 'low support' representation of the target dataset
+    <d-cite key="FLOWGAN,FLOWGAN2,CONDITIONING"></d-cite>, which means there may be substantial parts of the test
+    set to which a GAN (implicitly) assigns zero likelihood.
+    Rather than worrying too much about this
+    <d-footnote>
+      Though trying to fix this issue is a valid research agenda as well.
+    </d-footnote>,
+    we think it makes sense to focus GAN research on tasks where this is fine or even helpful.
+    One such task is discovering latent factors of variation in datasets.
+    We also think that GANs are likely to be well-suited to tasks with a perceptual flavor.
+    Graphics applications like image synthesis, image translation, image infilling, and attribute manipulation
+    all fall under this umbrella.
+  </p>
+
+  <p>
+    How should we evaluate GANs on these perceptual tasks?
+    When producing outputs for consumption by humans, we would ideally use human judgments.
+    Unfortunately, these are expensive to obtain, so we may have to find automated
+    evaluation procedures that correspond well to human judgment.
+    This task is nontrivial, but there is evidence (from other fields) that it can be
+    done well<d-cite key="MSSSIM"></d-cite>.
+  </p>
+
+  <p>
+    How should we design such procedures?
+    One idea we think hasn't gotten enough attention is to use classifier two-sample tests (C2STs)
+    <d-cite key="CLASSIFIERTWOSAMPLE,PARAMETRIC,BADFID"></d-cite>.
+    The main issue with C2STs is that, unless the generator is perfect, it will
+    have some defect (e.g., <d-cite key="CHECKERBOARD"></d-cite>) that the discriminator will notice.
+    We don't want to have to fix all such possible defects before getting an evaluation,
+    so we'd like to make a critic that is blind to that defect.
+    But once we do this, some other defect may pop up, so we will want a new critic, and so on.
+    To avoid this, we envision some kind of 'Gram-Schmidt procedure for critics',
+    which will spit out an ordered list of the most important defects and 
+    critics that ignore them.
+  </p>
+
+
+  <h2>How does GAN Training Scale with Batch Size?</h2>
+  <p>
+    Much recent work<d-cite key="IMAGENET1HOUR,BATCH32,TRAINLONGERGENERALIZEBETTER,DONTDECAY"></d-cite> focuses on training image classification models
+    with large minibatches. 
+    This work is especially relevant given the end of Moore's law<d-cite key="NOMOREMOORE"></d-cite> and
+    the move toward highly parallel custom processors<d-cite key="TPU"></d-cite>.
+    Can the same speed-ups be had for GANs?
+    After all, the discriminator in most GANs is just an image classifier.
+    However, there is a key difference between GAN training and classifier training:
+    When training an image classifier, you would like to take as large of a step as possible in parameter space,
+    but you can't because of gradient noise and curvature.
+    Having a large batch reduces the gradient noise.
+    When training a GAN, you don't necessarily want to take the largest possible step even if you know all exact derivatives.
+    Thus, we can state our problem:
+  </p>
+
+    <p>
+      <b>
+        <big>
+          How does GAN training scale with batch size?
+          How big is the role gradient noise plays in GAN training?
+          Can GAN training be modified so that it scales better with batch size?
+        </big>
+      </b>
+    </p>
+
+    <p>
+      Regarding gradient noise, the best available evidence at present is<d-cite key="BIGGAN"></d-cite>,
+      in which increasing minibatch size from 256 to 2048 significantly improves quantitative results and seems
+      to reduce training time somewhat.
+      However, the effect of batch size on convergence time itself was not systematically studied, so we believe
+      this question remains mostly open.
+      Progress on this front could be made by running experiments where batch size is modified for multiple
+      GAN implementations on multiple datasets.
+    </p>
+
+    <p>
+      Regarding modifications to the training procedure, the most promising work we know of is<d-cite key="OTGAN"></d-cite>,
+      In this work, GANs are trained with an objective that (roughly speaking) takes a batch of samples and a batch of training
+      data and computes a soft alignment between the batches that minimizes a transport distance.
+      The effectiveness of this procedure scales superlinearly with the batch size, so algorithms of this flavor
+      seem like good candidates for helping GANs to take advantage of new parallel hardware.
+    </p>
+
+
+  <h2>What is the Relationship Between GANs and Adversarial Examples?</h2>
+  <p>
+    It's well known<d-cite key="INTRIGUING"></d-cite> that image classifiers suffer from adversarial examples:
+    human-imperceptible perturbations that cause classifiers to give the wrong output when added to images.
+    It's now also known that (under the Statistical Query Model<d-cite key="SQM"></d-cite>)
+    there are classifier tasks that can be learned efficiently (non-robustly) that
+    are exponentially hard to learn robustly<d-cite key="CONSTRAINTS"></d-cite>.
+    These facts are relevant to GANs because the GAN discriminator is an image classifier.
+    However, though there is a large body of literature on GANs and a large body of literature on
+    adversarial examples, there doesn't seem to be much work on how these things relate
+    <d-footnote>
+      There is work on using GANs to generate adversarial examples, but this is not quite the same thing.
+    </d-footnote>.
+    Thus, we can ask the question:
+  </p>
+
+    <p>
+      <b>
+        <big>
+          How does the adversarial robustness of the discriminator affect GAN training?
+        </big>
+      </b>
+    </p>
+
+  <p>
+    How can we begin to think about this problem?
+    Consider a fixed discriminator <b>D</b>.
+    Usually when we talk about <b>D</b> having an adversarial example we mean
+    that there is a 'bad' example <b>G(z)</b> that is correctly classified as fake and
+    a small perturbation <b>p</b> such that <b>G(z) + p</b> is classified as real.
+    With a GAN, the concern would be that the gradient update for the generator would yield
+    a new generator <b>G'</b> where <b>G'(z) = G(z) + p</b>.
+  </p>
+
+  <p>
+    Is this concern realistic?
+    <d-cite key="AEFGM"></d-cite> show that targeted attacks on generative models can work,
+    but we are more worried about something you might call an 'accidental attack'.
+    There are reasons to believe that accidental attacks are less likely.
+    First, the generator is only allowed to make one gradient update before
+    the discriminator is updated again.
+    Current adversarial attacks are typically run for tens of iterations<d-cite key="CONSTRAINTS"></d-cite>.
+    Second, the generator is optimized given a batch of samples from the prior, and this batch is different
+    for every gradient step.
+    Finally, the optimization takes place in the space of parameters of the generator and not pixel space. 
+    However, none of these objections seem conclusive, so
+    we think this is a fruitful topic for further exploration.
+  </p>
+
+</d-article>
+
+
+
+<d-appendix>
+  <h3>Acknowledgments</h3>
+  <p>
+    We would like to thank Colin Raffel, Ben Poole, Eric Jang, and Dustin Tran.
+    Ask Ian if he wants to be an author.
+  </p>
+
+  <h3>Author Contributions</h3>
+  <p>
+    Augustus came up with the idea to write this article, came up with the open problems,
+    and wrote most of the article. 
+    Ian helped to substantially refine the treatement of the open problems.
+  </p>
+
+  <d-footnote-list></d-footnote-list>
+  <d-citation-list></d-citation-list>
+</d-appendix>
+
+<!-- bibliography will be inlined during Distill pipeline's pre-rendering -->
+<d-bibliography src="bibliography.bib"></d-bibliography>
+
+</body>
