@@ -103,7 +103,7 @@
       Those are useful terms for describing fuzzy clusters in 'model-space', but there are models
       that aren't easy to describe as belonging to just one of those clusters.
     </d-footnote>.
-    Roughly speaking, Flow Models<d-cite key="NICE,REALNVP,GLOW,NFTTUTORIAL"></d-cite> apply a
+    Roughly speaking, Flow Models<d-cite key="NICE,REALNVP,GLOW,NFTUTORIAL"></d-cite> apply a
     stack of invertible transformations to a sample from the prior
     so that exact log-likelihoods of observations can be computed.
     Autoregressive Models<d-cite key="PIXELRNN,PIXELCNN,PIXELCNNPP,WAVENET"></d-cite> factorize the
@@ -164,7 +164,7 @@
   <p>
     We've discussed the trade-off between GANs and Flow Models, but what about Autoregressive Models?
     It turns out that Autoregressive Models can be expressed as Flow Models
-    (because they are both reversible) that are not parallelizable<d-cite key="NFTTUTORIAL"></d-cite>.
+    (because they are both reversible) that are not parallelizable<d-cite key="NFTUTORIAL"></d-cite>.
     It also turns out that Autoregressive Models are more time and parameter efficient than Flow Models.
     Thus, GANs are parallel and efficient but not reversible,
     Flow Models are reversible and parallel but not efficient, and 
@@ -384,7 +384,7 @@
   <p>
     The first strategy is to try making statements about global convergence properties of GANs where the generator and
     discriminator are simplified (e.g. we can assume the discriminator is linear).
-    One such simplified model is called the LGQ GAN<d-cite key="LGQ"></d-cite>.
+    One such simplified model is called the LGQ GAN<d-cite key="LGQGAN"></d-cite>.
     In the LGQ GAN the generator is linear, the distribution to be modeled is Gaussian, and the discriminator is quadratic.
     A technique called 'crossing the curl'<d-cite key="CROSSINGTHECURL"></d-cite> or
     Symplectic Gradient Adjustment<d-cite key="SGA"></d-cite> is shown,
@@ -417,7 +417,7 @@
   </p>
 
   <p>
-    The final strategy is to model GAN training using notions from game theory<d-cite key="GANGS,BEYONDLOCAL,CHECKHOV"></d-cite>
+    The final strategy is to model GAN training using notions from game theory<d-cite key="GANGS,BEYONDLOCAL,CHEKHOV"></d-cite>
     These techniques yield training procedures that provably converge to some kind of approximate nash equilibrium,
     but do so using unreasonably large resource constraints.
     The 'obvious' next step in this case is to try and whittle down those resource constraints.
@@ -496,7 +496,7 @@
   <p>
     How should we design such procedures?
     One idea we think hasn't gotten enough attention is to use classifier two-sample tests (C2STs)
-    <d-cite key="CLASSIFIERTWOSAMPLE,PARAMETRIC,BADFID"></d-cite>.
+    <d-cite key="CLASSIFIERTWOSAMPLE,PARAMETRIC,FIDBAD"></d-cite>.
     The main issue with C2STs is that, unless the generator is perfect, it will
     have some defect (e.g., <d-cite key="CHECKERBOARD"></d-cite>) that the discriminator will notice.
     We don't want to have to fix all such possible defects before getting an evaluation,
