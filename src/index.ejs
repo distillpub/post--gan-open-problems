@@ -46,7 +46,8 @@
 
 <d-article>
 
-  <h2>Introduction</h2>
+
+  <h2 id="intro">Introduction</h2>
 
   <p>
     By some metrics, research on Generative Adversarial Networks (GANs) has progressed substantially in the past 2 years.
@@ -77,9 +78,10 @@
   <p>
     The structure of this article is as follows:
     There are several sections, each of which corresponds to a problem.
+    We include a <a href="#listofproblems">List of problems</a> below for easy navigation.
     Each section can be read independently of the others (though inevitably the problems will be related in certain ways)
     and may require different background.
-    In each section, we will first give context for the problem and explain why we think it is important.
+    For each problem, we will first give context for the problem and explain why we think it is important.
     Then we still state the problem as precisely as we are able.
     We may then speculate about possible answers to the problem or potential strategies for approaching it
     <d-footnote>
@@ -93,8 +95,21 @@
     </d-footnote>.
   </p>
 
+  <h2 id="listofproblems">List of Problems</h2>
 
-  <h2>What are the Trade-Offs Between GANs and other Generative Models?</h2>
+  <ul style="list-style-type:none">
+    <!-- <li><a href="#intro">Introduction</a></li> -->
+    <li><a href="#tradeoffs">What are the Trade-Offs Between GANs and other Generative Models?</a></li>
+    <li><a href="#distros">What Sorts of Distributions Can GANs Model?</a></li>
+    <li><a href="#scaling">How Can we Scale GANs Beyond Image Synthesis?</a></li>
+    <li><a href="#convergence">What can we Say About the Global Convergence of the Training Dynamics?</a></li>
+    <li><a href="#eval">How Should we Evaluate GANs and When Should we Use Them?</a></li>
+    <li><a href="#batchsize">How does GAN Training Scale with Batch Size?</a></li>
+    <li><a href="#advx">What is the Relationship Between GANs and Adversarial Examples?</a></li>
+  </ul>
+
+
+  <h2 id="tradeoffs">What are the Trade-Offs Between GANs and other Generative Models?</h2>
   <p>
     There are other types of generative models besides GANs.
     At present, two other model families are popular: Flow Models and Autoregressive Models
@@ -198,7 +213,7 @@
   </p>
 
 
-  <h2>What Sorts of Distributions Can we Expect GANs to Model?</h2>
+  <h2 id="distros">What Sorts of Distributions Can GANs Model?</h2>
   <p>
       Most experimental work on GANs deals with image synthesis.
       In particular, people train GANs on a handful of standard (in the Deep Learning community) image datasets:
@@ -266,7 +281,7 @@
   </p>
 
 
-  <h2>How Can we Scale Adversarial Training Beyond Image Synthesis?</h2>
+  <h2 id="scaling">How Can we Scale GANs Beyond Image Synthesis?</h2>
   <p>
     Aside from applications like image-to-image
     translation<d-cite key="CYCLEGAN"></d-cite>
@@ -342,7 +357,7 @@
     </p>
 
 
-  <h2>What can we Say About the Global Convergence of the Training Dynamics?</h2>
+  <h2 id="convergence">What can we Say About the Global Convergence of the Training Dynamics?</h2>
   <p>
     Under certain assumptions
     <d-footnote>
@@ -425,7 +440,7 @@
 
 
 
-  <h2>How Should we Evaluate GANs and When Should we Use Them?</h2>
+  <h2 id="eval">How Should we Evaluate GANs and When Should we Use Them?</h2>
 
   <p>
     There is substantial confusion about how GANs should be evaluated.
@@ -508,7 +523,7 @@
   </p>
 
 
-  <h2>How does GAN Training Scale with Batch Size?</h2>
+  <h2 id="batchsize">How does GAN Training Scale with Batch Size?</h2>
   <p>
     Much recent work<d-cite key="IMAGENET1HOUR,BATCH32,TRAINLONGERGENERALIZEBETTER,DONTDECAY"></d-cite> focuses on training image classification models
     with large minibatches. 
@@ -553,7 +568,7 @@
     </p>
 
 
-  <h2>What is the Relationship Between GANs and Adversarial Examples?</h2>
+  <h2 id="advx">What is the Relationship Between GANs and Adversarial Examples?</h2>
   <p>
     It's well known<d-cite key="INTRIGUING"></d-cite> that image classifiers suffer from adversarial examples:
     human-imperceptible perturbations that cause classifiers to give the wrong output when added to images.
