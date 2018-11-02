@@ -148,9 +148,9 @@
   <p>
     However, there seems to be a substantial gap between the computational cost of training GANs and Flow Models.
     To estimate the magnitude of this gap, we can consider two models trained on datasets of human faces.
-    In GLOW<d-cite key="GLOW"></d-cite>, a model trained to generate celebrity faces is trained on
-    40 GPUs for 2 weeks, using about 200 million parameters, to generate 256x256 images.
-    In Progressive GANs<d-cite key="PROGRESSIVEGAN"></d-cite>, a GAN is trained on a similar face dataset
+    The GLOW model<d-cite key="GLOW"></d-cite> is trained to generate 256x256 celebrity faces using
+    40 GPUs for 2 weeks and about 200 million parameters.
+    Progressive GANs<d-cite key="PROGRESSIVEGAN"></d-cite> are trained on a similar face dataset
     with 8 GPUs for 4 days, using about 46 million parameters, to generate 1024x1024 images.
     Roughly speaking, the Flow Model took 17 times more GPU days and 4 times more parameters
     to generate images with 16 times fewer pixels.
@@ -310,10 +310,10 @@
     This makes it harder to disentangle two potentially confounding factors:
     First, GANs might struggle because all deep learning techniques struggle on such data.
     Second, GANs might struggle because something intrinsic to GANs
-    make it hard to model data with a geometric structure.
+    makes it hard to model such data.
     The one relevant paper we could find is<d-cite key="NETGAN"></d-cite>, in which
-    the generator produces and the discriminator critiques random walks
-    that are meant to resemble those samples from a source graph.
+    the generator produces (and the discriminator 'critiques') random walks
+    that are meant to resemble those sampled from a source graph.
   </p>
 
   <p>
@@ -435,7 +435,7 @@
     The final strategy is to model GAN training using notions from game theory<d-cite key="GANGS,BEYONDLOCAL,CHEKHOV"></d-cite>
     These techniques yield training procedures that provably converge to some kind of approximate nash equilibrium,
     but do so using unreasonably large resource constraints.
-    The 'obvious' next step in this case is to try and whittle down those resource constraints.
+    The 'obvious' next step in this case is to try and reduce those resource constraints.
   </p>
 
 
@@ -624,7 +624,7 @@
     Second, the generator is optimized given a batch of samples from the prior, and this batch is different
     for every gradient step.
     Finally, the optimization takes place in the space of parameters of the generator and not pixel space. 
-    However, none of these objections seem conclusive, so
+    However, none of these objections seem decisive, so
     we think this is a fruitful topic for further exploration.
   </p>
 
