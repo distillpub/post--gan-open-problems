@@ -568,6 +568,15 @@
       seem like good candidates for helping GANs to take advantage of new parallel hardware.
     </p>
 
+    <p>
+      Finally, large batch sizes are relevant for synchronous SGD<d-cite key="SYNCSGD"></d-cite>, but that isn't the only way to paralellize SGD.
+      There is also substantial work on scaling up asynchronous SGD for neural networks<d-cite key="LARGEDEAN,ELASTIC,SUYOG,FASGD"></d-cite>.
+      In this setting, the limiting factor tends to be that gradient updates are computed on 'stale' copies of the parameters. 
+      Given the evidence<d-cite key="CHEKHOV,AVERAGING"></d-cite> that GANs can benefit from training on past parameter snapshots, we might ask if
+      asynchronous SGD interacts in a special way with GAN training.
+    </p>
+
+
 
   <h2 id="advx">What is the Relationship Between GANs and Adversarial Examples?</h2>
   <p>
@@ -610,7 +619,7 @@
     There are reasons to believe that accidental attacks are less likely.
     First, the generator is only allowed to make one gradient update before
     the discriminator is updated again.
-    Current adversarial attacks are typically run for tens of iterations<d-cite key="CONSTRAINTS"></d-cite>.
+    Current adversarial attacks are typically run for tens of iterations<d-cite key="MADRY"></d-cite>.
     Second, the generator is optimized given a batch of samples from the prior, and this batch is different
     for every gradient step.
     Finally, the optimization takes place in the space of parameters of the generator and not pixel space. 
