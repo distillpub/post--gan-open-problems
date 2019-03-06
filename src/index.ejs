@@ -59,41 +59,19 @@
   </figure>
 
   <p>
-    By other metrics, less has happened - for instance, there is still widespread disagreement about how GANs should be evaluated.
+    However, by other metrics, less has happened - for instance, there is still widespread disagreement about how GANs should be evaluated.
     Given that current image synthesis benchmarks seem somewhat saturated, we think now is a good time to reflect on research goals for this sub-field.
-    One way to accomplish this reflection is to make a list of 'open problems', as has been done in other scientific fields <d-cite key="BAEZ,NOTFAMOUS,HILBERT,SMALE"></d-cite>.
   </p>
 
   <p>
-    This article is about open research problems related to GANs.
-    Our aim as authors is to encourage other researchers to work on these problems
+    Lists of open problems have helped other fields with this<d-cite key="BAEZ,NOTFAMOUS,HILBERT,SMALE"></d-cite>.
+    This article suggests open research problems that we'd be excited for other researchers to work on.
     <d-footnote>We also believe that writing this article has clarified our thinking about
-      GANs, and we would encourage other researchers to write similar articles about their own sub-fields.</d-footnote>.
+      GANs, and we would encourage other researchers to write similar articles about their own sub-fields.</d-footnote>
     We assume a fair amount of background (or willingness to look things up)
     because we reference too many results to explain all those results in detail.
-    The selection of problems is also biased toward our specific interests.
   </p>
 
-
-  <p>
-    The structure of this article is as follows:
-    There are several sections, each of which corresponds to a problem.
-    We include a <a href="#listofproblems">list of problems</a> below for easy navigation.
-    Each section can be read independently of the others (though inevitably the problems will be related in certain ways)
-    and may require different background.
-    For each problem, we will first give context for the problem and explain why we think it is important.
-    Then we still state the problem as precisely as we are able.
-    We may then speculate about possible answers to the problem or potential strategies for approaching it
-    <d-footnote>
-      We'd like to emphasize that our conjectures are just that - meant to start a conversation rather than
-      to finish one.
-      We'd also like to emphasize that our speculation about how to address the problem might be misleading!
-      On many of these topics we likely lack knowledge of relevant subfields, and even if we don't,
-      our speculations might be wrong.
-      We'd encourage people interested in working on these problems to treat our speculations as a jumping off
-      point rather than a prescription for success.
-    </d-footnote>.
-  </p>
 
   <h2 id="listofproblems">List of Problems</h2>
 
@@ -111,17 +89,16 @@
 
   <h2 id="tradeoffs">What are the Trade-Offs Between GANs and other Generative Models?</h2>
   <p>
-    There are other types of generative models besides GANs.
-    At present, two other model families are popular: Flow Models and Autoregressive Models
+    In addition to GANs, two other types of generative model are currently popular: Flow Models and Autoregressive Models
     <d-footnote>
       This statement shouldn't be taken too literally.
       Those are useful terms for describing fuzzy clusters in 'model-space', but there are models
       that aren't easy to describe as belonging to just one of those clusters.
     </d-footnote>.
     Roughly speaking, Flow Models<d-cite key="NICE,REALNVP,GLOW,NFTUTORIAL"></d-cite> apply a
-    stack of invertible transformations to a sample from the prior
+    stack of invertible transformations to a sample from a prior
     so that exact log-likelihoods of observations can be computed.
-    Autoregressive Models<d-cite key="PIXELRNN,PIXELCNN,PIXELCNNPP,WAVENET"></d-cite> factorize the
+    On the other hand, Autoregressive Models<d-cite key="PIXELRNN,PIXELCNN,PIXELCNNPP,WAVENET"></d-cite> factorize the
     distribution over observations into conditional distributions
     and process one component of the observation at a time (for images, they may process one pixel
     at a time.)
@@ -136,7 +113,7 @@
     At first glance, Flow Models seem like they might make GANs unnecessary.
     Flow Models allow for exact log-likelihood computation and exact inference,
     so if training Flow Models and GANs had the same computational cost, GANs might not be useful.
-    A lot of effort is spent on training GANs strictly as generative models,
+    A lot of effort is spent on training GANs,
     so it seems like we should care about whether Flow Models make GANs obsolete
     <d-footnote>
       Even in this case, there might still be other reasons to use adversarial training in contexts like
@@ -150,26 +127,26 @@
     To estimate the magnitude of this gap, we can consider two models trained on datasets of human faces.
     The GLOW model<d-cite key="GLOW"></d-cite> is trained to generate 256x256 celebrity faces using
     40 GPUs for 2 weeks and about 200 million parameters.
-    Progressive GANs<d-cite key="PROGRESSIVEGAN"></d-cite> are trained on a similar face dataset
+    In contrast, progressive GANs<d-cite key="PROGRESSIVEGAN"></d-cite> are trained on a similar face dataset
     with 8 GPUs for 4 days, using about 46 million parameters, to generate 1024x1024 images.
     Roughly speaking, the Flow Model took 17 times more GPU days and 4 times more parameters
     to generate images with 16 times fewer pixels.
-    This comparison is not perfect
+    This comparison isn't perfect,
     <d-footnote>
     For instance, it's possible that the progressive growing
     technique could be applied to Flow Models as well.
-    </d-footnote>,
-    but it gives you a sense of the state of things.
+    </d-footnote>
+    but it gives you a sense of things.
   </p>
 
   <p>
     Why are the Flow Models less efficient?
-    We can think of two reasons:
+    We see two possible reasons:
     First, maximum likelihood training might be computationally harder to do than adversarial training.
     In particular, if any element of your training set is assigned zero probability by your generative model,
     you will be penalized infinitely harshly!
-    A GAN generator is allowed to allocate zero probability to many elements of the training
-    set, as long as the discriminator can't tell that it has done so.
+    A GAN generator, on the other hand, is only penalized indirectly for assigning zero probability to training set elements,
+    and this penalty is less harsh.
 
     Second, normalizing flows might be an inefficient way to represent certain functions.
     Section 6.1 of <d-cite key="NORMALIZINGFLOWS"></d-cite> does some small experiments on expressivity, but at
@@ -183,39 +160,57 @@
     It also turns out that Autoregressive Models are more time and parameter efficient than Flow Models.
     Thus, GANs are parallel and efficient but not reversible,
     Flow Models are reversible and parallel but not efficient, and 
-    Autoregressive models are reversible and efficient, but not parallelizable.
-    We can thus state our open problem:
+    Autoregressive models are reversible and efficient, but not parallel.
   </p>
 
+  <table>
+    <tr><td></td>  <td>Parallel</td>   <td>Efficient</td>   <td>Reversible</td>    </tr>
+    <tr>  <td>GANs</td>   <td>Yes</td>   <td>Yes</td>   <td>No</td> </tr>
+    <tr>  <td>Flow Models</td> <td>Yes</td>   <td>No</td>   <td>Yes</td>  </tr>
+    <tr> <td>Autoregressive Models</td>  <td>No</td>   <td>Yes</td>   <td>Yes</td>  </tr>
+  </table>
+
   <p>
-    <b>
-      <big>
+    This brings us to our open problem:
+  </p>
+
+  <style>
+    .open-problem {
+    font-size: 125%;
+    margin-left: 40px;
+    margin-bottom: 20px;
+    }
+  </style>
+
+  <div class="open-problem">
         What are the fundamental trade-offs between GANs and other generative models?
         In particular, can we make some sort of CAP Theorem<d-cite key="CAPTHEOREM"></d-cite> type statement about
         reversibility, paralellism, and parameter/time efficiency?
-      </big>
-    </b>
-  </p>
+  </div>
 
   <p>
     One way to approach this problem could be to study more models that are a hybrid of multiple model families.
     This has been considered for hybrid GAN/Flow Models<d-cite key="FLOWGAN,FLOWGAN2"></d-cite>, but we think that
     this approach is still underexplored.
+  </p>
 
+  <p>
     We're also not sure about whether maximum likelihood training is necessarily harder than GAN training.
     It's true that placing zero mass on a training data point is not explicitly prohibited under the
     GAN training loss, but it's also true that a sufficiently powerful discriminator will be able
     to do better than chance if the generator does this.
     It does seem like GANs are learning distributions of low support in practice<d-cite key="CONDITIONING"></d-cite> though.
+  </p>
 
-    Ultimately, we do suspect that Flow Models are fundamentally less expressive per-parameter than
+  <p>
+    Ultimately, we suspect that Flow Models are fundamentally less expressive per-parameter than
     arbitrary decoder functions, and we suspect that this is provable under certain assumptions.
   </p>
 
 
   <h2 id="distros">What Sorts of Distributions Can GANs Model?</h2>
   <p>
-      Most experimental work on GANs deals with image synthesis.
+      Most GAN research focuses on image synthesis.
       In particular, people train GANs on a handful of standard (in the Deep Learning community) image datasets:
       MNIST<d-cite key="MNIST"></d-cite>,
       CIFAR-10<d-cite key="CIFAR"></d-cite>,
@@ -235,10 +230,13 @@
   </p>
 
   <p>
-    However, we've had to come to these conclusions as a field through the laborious and noisy process of
-    trying to train GANs on ever larger and more complicated datasets, and it's non-trivial to find
-    good datasets to test on, so we're currently stuck with empirical knowledge of the datasets that
+    However, we've had to come to these conclusions through the laborious and noisy process of
+    trying to train GANs on ever larger and more complicated datasets.
+    In particular, we've mostly studied how GANs perform on the datasets that
     happened to be laying around for object recognition.
+  </p>
+
+  <p>
     As with any science, we would like to have a simple theory that explains our experimental observations.
     Ideally, we could look at a dataset, perform some computations without ever actually
     training a generative model, and then say something like 'this dataset will be
@@ -248,37 +246,41 @@
     We can now state the problem:
   </p>
 
-  <p>
-    <b>
-      <big>Given a distribution, what can we say about how hard it will be for a GAN to model that distribution?
-      </big>
-    </b>
-  </p>
+  <div class="open-problem">
+  Given a distribution, what can we say about how hard it will be for a GAN to model that distribution?
+  </div>
 
   <p>
     We might ask the following related questions as well:
-    What do we mean by 'model'? Are we satisfied with a low-support representation, or do we want a true density model?
+    What do we mean by 'model the distribution'? Are we satisfied with a low-support representation, or do we want a true density model?
     Are there distributions that a GAN can never learn to model?
     Are there distributions that are learnable for a GAN in principle, but are not
     efficiently learnable, for some reasonable model of resource-consumption?
     Are the answers to these questions actually any different for GANs than they are for other
-    'generative models'?
+    generative models?
   </p>
 
   <p>
     We propose two strategies for answering these questions:
-    The first strategy is the study of synthetic datasets.
-    In <d-cite key="GANSEQUAL"></d-cite> the authors create a dataset of synthetic triangles -- we feel that this
-    angle is under-explored.
-    Synthetic datasets can be parameterized by quantities we want to study, such as connectedness or smoothness. 
-    Given such a parameterization, we can conduct a systematic study of how those properties affect learnability.
-    The usefulness of such a dataset would not be limited to studying GANs.
-
-    The second strategy is to take existing theoretical results and modify the assumptions to account
-    for different properties of the dataset.
-    For instance, one could take results about GANs that apply given unimodal data distributions and see
-    what happens to them when the data distribution becomes multi-modal.
   </p>
+  <ul>
+    <li>
+    <b>Synthetic Datasets</b> - We can study synthetic datasets to probe what traits affect learnability.
+    For example, in <d-cite key="GANSEQUAL"></d-cite> the authors create a dataset of synthetic triangles.
+    We feel that this
+    angle is under-explored.
+    Synthetic datasets can even be parameterized by quantities of interest, such as connectedness or smoothness,
+    allowing for systematic study.
+    Such a dataset could also be useful for studying other types of generative models.
+    </li>
+    <li>
+      <b>Modify Existing Theoretical Results</b> - We can take existing theoretical results and try to
+      modify the assumptions to account
+    for different properties of the dataset.
+    For instance, we could take results about GANs that apply given unimodal data distributions and see
+    what happens to them when the data distribution becomes multi-modal.
+    </li>
+  </ul>
 
 
   <h2 id="scaling">How Can we Scale GANs Beyond Image Synthesis?</h2>
