@@ -330,17 +330,13 @@
     This leads us to the statement of the problem:
   </p>
 
-    <p>
-      <b>
-        <big>
-          How can GANs be made to perform well on non-image datasets?
-          How much success on image datasets relates to the implicit priors over the images
-          given by the structure of GAN generators?
-          Does scaling GANs to these other types of datasets require new techniques
-          for training GANs, or does it simply require better implicit priors for each domain?
-        </big>
-      </b>
-    </p>
+  <div class="open-problem">
+    How can GANs be made to perform well on non-image datasets?
+    How much success on image datasets relates to the implicit priors over the images
+    given by the structure of GAN generators?
+    Does scaling GANs to these other types of datasets require new techniques
+    for training GANs, or does it simply require better implicit priors for each domain?
+  </div>
 
     <p>
       For unstructured continuous data, we believe that GANs will eventually achieve the same
@@ -383,14 +379,10 @@
     Thus, we will state the problem here and move related work to the section where we discuss potential solutions:
   </p>
 
-    <p>
-      <b>
-        <big>
-          Under what simplifying assumptions can we prove that GANs are globally convergent?
-          Which theoretical analyses of approximate neural network convergence can be applied to GANs?
-        </big>
-      </b>
-    </p>
+  <div class="open-problem">
+    Under what simplifying assumptions can we prove that GANs are globally convergent?
+    Which theoretical analyses of approximate neural network convergence can be applied to GANs?
+  </div>
 
   <p>
     Here we discuss possible strategies for solving this problem.
@@ -477,14 +469,10 @@
     Thus, we have bundled those two questions into one:
   </p>
 
-  <p>
-    <b>
-      <big>
-        What tasks are GANs uniquely suited for, compared to other generative models?
-        How should we evaluate performance on these tasks?
-      </big>
-    </b>
-  </p>
+  <div class="open-problem">
+    What tasks are GANs uniquely suited for, compared to other generative models?
+    How should we evaluate performance on these tasks?
+  </div>
 
   <p>
     What should we use GANs for?
@@ -543,15 +531,11 @@
     Thus, we can state our problem:
   </p>
 
-    <p>
-      <b>
-        <big>
-          How does GAN training scale with batch size?
-          How big is the role gradient noise plays in GAN training?
-          Can GAN training be modified so that it scales better with batch size?
-        </big>
-      </b>
-    </p>
+  <div class="open-problem">
+      How does GAN training scale with batch size?
+      How big is the role gradient noise plays in GAN training?
+      Can GAN training be modified so that it scales better with batch size?
+  </div>
 
     <p>
       Regarding gradient noise, the best available evidence at present is<d-cite key="BIGGAN"></d-cite>,
@@ -597,13 +581,9 @@
     Thus, we can ask the question:
   </p>
 
-    <p>
-      <b>
-        <big>
-          How does the adversarial robustness of the discriminator affect GAN training?
-        </big>
-      </b>
-    </p>
+  <div class="open-problem">
+    How does the adversarial robustness of the discriminator affect GAN training?
+  </div>
 
   <p>
     How can we begin to think about this problem?
@@ -638,13 +618,7 @@
   <h3>Acknowledgments</h3>
   <p>
     We would like to thank Colin Raffel, Ben Poole, Eric Jang, Dustin Tran, Alex Kurakin, David Berthelo,
-    and Aurko Roy for helpful discussions and feedback.
-  </p>
-
-  <h3>Author Contributions</h3>
-  <p>
-    Augustus came up with the idea to write this article, came up with the open problems,
-    and wrote the article. 
+    Aurko Roy, Ian Goodfellow, and Chris Olah for helpful discussions and feedback.
   </p>
 
   <d-footnote-list></d-footnote-list>
