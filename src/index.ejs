@@ -291,74 +291,76 @@
     translation<d-cite key="CYCLEGAN"></d-cite>
     and domain-adaptation<d-cite key="DOMAINADAPTATION"></d-cite>
     most GAN successes have been in image synthesis.
-    There have been a few attempts at using GANs to model other types of data, which
-    we briefly mention here for context.
+    Attempts to use GANs beyond images have focused on three domains:
   </p>
 
-  <p>
-    In the text domain, there are -- broadly speaking -- two approaches to using
-    GANs. The first is to have the GAN training procedure act only on continuous
+  <ul>
+  <li><b>Text</b> - 
+    The discrete nature of text makes it difficult to apply GANs.
+    This is because GANs rely on backpropagating a signal from the discriminator through the generated content into the generator.
+    There are two approaches to addressing this difficulty.
+    The first is to have the GAN act only on continuous
     representations of the discrete data, as in<d-cite key="WGANGP"></d-cite>.
     The second is use an actual discrete model and attempt to train the GAN using
-    some kind of gradient estimation technique as in<d-cite key="SEQGAN"></d-cite> 
+    gradient estimation as in<d-cite key="SEQGAN"></d-cite>.
     Other, more sophisticated treatments exist<d-cite key="MASKGAN"></d-cite>,
     but as far as we can tell, none of them produce results that are competitive (in terms of perplexity)
-    with simple LSTM<d-cite key="LSTM"></d-cite> language models.
-  </p>
-
-  <p>
+    with likelihood-based <d-cite key="LSTM"></d-cite> language models.
+  </li>
+  <li><b>Structured Data</b> - 
     What about other non-euclidean structured data, like graphs?
     The study of this type of data is called geometric deep
     learning<d-cite key="GEOMETRICDEEPLEARNING"></d-cite>.
-    Non-GAN deep learning techniques have not had much success here.
-    This makes it harder to disentangle two potentially confounding factors:
-    First, GANs might struggle because all deep learning techniques struggle on such data.
-    Second, GANs might struggle because something intrinsic to GANs
-    makes it hard to model such data.
-    The one relevant paper we could find is<d-cite key="NETGAN"></d-cite>, in which
-    the generator produces (and the discriminator 'critiques') random walks
-    that are meant to resemble those sampled from a source graph.
-  </p>
+    GANs have had limited success here, but so have other deep learning techniques, 
+    so it's hard to tell how much the GAN aspect matters.
 
-  <p>
-    The audio domain might be the one in which GANs are closest to achieving the success
+    We're aware of one attempt to use GANs in this space<d-cite key="NETGAN"></d-cite>,
+    which has the generator produce (and the discriminator 'critique') random walks
+    that are meant to resemble those sampled from a source graph.
+  </li>
+  <li><b>Audio</b> - 
+    Audio is the domain in which GANs are closest to achieving the success
     they've enjoyed with images.
     The first serious attempt at applying GANs to unsupervised audio synthesis
-    is<d-cite key="AUDIOGAN"></d-cite>, in which the authors operate in the time domain
-    and make a variety of special allowances for the fact that they are operating on audio.
-    There is an anonymous submission to a recent conference that even suggests GANs can
-    outperform autoregressive models on some perceptual metrics<d-cite key="GANSYNTH"></d-cite>.
-    Nevertheless, image datasets are clearly the easiest for present GAN models.
+    is<d-cite key="AUDIOGAN"></d-cite>, in which the authors 
+    make a variety of special allowances for the fact that they are operating on audio.
+    More recent work suggests GANs can even
+    outperform autoregressive models on some perceptual metrics<d-cite key="NOTANON"></d-cite>.
+  </li>
+  </ul>
+
+
+  <p>
+    Despite these attempts, images are clearly the easiest domain for GANs.
     This leads us to the statement of the problem:
   </p>
 
   <div class="open-problem">
-    How can GANs be made to perform well on non-image datasets?
-    How much success on image datasets relates to the implicit priors over the images
-    given by the structure of GAN generators?
-    Does scaling GANs to these other types of datasets require new techniques
-    for training GANs, or does it simply require better implicit priors for each domain?
+    How can GANs be made to perform well on non-image data?
+    Does scaling GANs to other domains require new training techniques,
+    or does it simply require better implicit priors for each domain?
   </div>
 
     <p>
-      For unstructured continuous data, we believe that GANs will eventually achieve the same
-      level of success they're currently achieving in image synthesis.
-      We also believe that achieving this will require better hand-designed implicit priors
-      for each domain.
-      The path to success here (in our opinion) lies in thinking hard about what sort of implicit
-      priors make sense and are computationally feasible in each domain of interest.
+      We expect GANs to eventually achieve image-synthesis-level success on other continuous data, 
+      but that it will require better implicit priors.
+      Finding these priors will require thinking hard about what makes sense and is computationally feasible
+      in a given domain.
+    </p>
 
+    <p>
       For structured data or data that is not continuous, we're less sure.
-      If GANs are to work well for generating text or graphs,
-      we think that fundamental improvements to the GAN training procedure are needed.
-      In principle there is no reason that both the generator and discriminator can't be
-      agents trained with reinforcement learning.
-      Perhaps the only real obstacle to making this work is computational resources<d-cite key="DOTA"></d-cite>.
+      One approach might be to make both the generator and discriminator 
+      be agents trained with reinforcement learning. Making this approach work could require
+      large-scale computational resources<d-cite key="DOTA"></d-cite>.
+      Finally, this problem may just require fundamental research progress.
     </p>
 
 
-  <h2 id="convergence">What can we Say About the Global Convergence of the Training Dynamics?</h2>
+  <h2 id="convergence">What can we Say About the Global Convergence of GAN Training?</h2>
   <p>
+    Training GANs is different from training other neural networks because we simultaneously optimize
+    the generator and discriminator for opposing objectives.
     Under certain assumptions
     <d-footnote>
       These assumptions are very strict.
@@ -366,73 +368,62 @@
       the equilbrium we are looking for exists and that
       we are already very close to it.
     </d-footnote>,
-    the standard simultaneous SGD algorithm for
-    training GANs is locally asymptotically stable<d-cite key="LOCALLYSTABLE"></d-cite>.
-    Not all GAN variants have this property, but many do
-    <d-cite key="WHICHMETHODSCONVERGE"></d-cite>.
+    this simultaneous optimization
+    is locally asymptotically stable<d-cite key="LOCALLYSTABLE,WHICHMETHODSCONVERGE"></d-cite>.
+  </p>
 
-    It's hard to prove interesting things about the fully general case,
-    because the discriminator loss as a function of the discriminator parameters is non-convex,
-    and similarly with the generator.
-    Nevertheless, we would like to make statements about GAN training that distinguish the difficulties
-    associated with nonconvexity from the difficulties of simultaneous SGD.
-
-    There has been nontrivial progress on this question.
-    Thus, we will state the problem here and move related work to the section where we discuss potential solutions:
+  <p>
+    Unfortunately, it's hard to prove interesting things about the fully general case.
+    This is because the discriminator/generator's loss is a non-convex function of its parameters.
+    But all neural networks have this problem!
+    We'd like some way to focus on just the problems created by simultaneous optimization.
+    This brings us to our question:
   </p>
 
   <div class="open-problem">
-    Under what simplifying assumptions can we prove that GANs are globally convergent?
-    Which theoretical analyses of approximate neural network convergence can be applied to GANs?
+    When can we prove that GANs are globally convergent?<br>
+    Which neural network convergence results can be applied to GANs?
   </div>
 
   <p>
-    Here we discuss possible strategies for solving this problem.
+    There has been nontrivial progress on this question.
     Broadly speaking, there are 3 existing techniques, all of which have generated 
     promising results but none of which have been studied to completion:
   </p>
 
-  <p>
-    The first strategy is to try making statements about global convergence properties of GANs where the generator and
-    discriminator are simplified (e.g. we can assume the discriminator is linear).
-    One such simplified model is called the LGQ GAN<d-cite key="LGQGAN"></d-cite>.
-    In the LGQ GAN the generator is linear, the distribution to be modeled is Gaussian, and the discriminator is quadratic.
-    A technique called 'crossing the curl'<d-cite key="CROSSINGTHECURL"></d-cite> or
-    Symplectic Gradient Adjustment<d-cite key="SGA"></d-cite> is shown,
-    according to Variational Inequality Theory<d-cite key="CROSSINGTHECURL"></d-cite> and under restrictive assumptions
-    <d-footnote>
+  <ul>
+  <li><b>Simplifying Assumptions</b> - 
+    The first strategy is to make simplifying assumptions about the generator and discriminator.
+    For example, the simplifed LGQ GAN<d-cite key="LGQGAN"></d-cite> -- linear generator, gaussian data, and quadratic discriminator --
+    can be shown to be globally convergent, if optimized with a special technique<d-cite key="CROSSINGTHECURL,SGA"></d-cite>
+    and some additional assumptions.<d-footnote>
       Among other things, it's assumed that we can first learn the means of the Gaussian and then learn the variances.
-    </d-footnote>,
-    to be globally convergent for the LGQ GAN.
-    It seems promising to gradually relax the assumptions to see what happens.
-    One step in this direction is to move away from unimodal distributions.
-    This is a natural relaxation to study, because 'mode collapse' is a standard GAN pathology.
-    In<d-cite key="LIMITATIONS"></d-cite>, mixtures of Gaussians are considered,
-    and it's shown that following first order gradient steps causes divergence, while taking optimal steps
-    for the discriminator allows for convergence.
-  </p>
+    </d-footnote>
 
-  <p>
-    The second strategy is to  apply techniques from analyzing normal neural networks (which are also non-convex)
-    to answer slightly easier but still interesting questions about convergence of GANs.
+    It seems promising to gradually relax those assumptions to see what happens.
+    For example, we could move away from unimodal distributions<d-cite key="LIMITATIONS"></d-cite>.
+    This is a natural relaxation to study, because 'mode collapse' is a standard GAN pathology.
+  </li>
+  <li><b>Use Techniques from Normal Neural Networks</b> - 
+    The second strategy is to  apply techniques for analyzing normal neural networks (which are also non-convex)
+    to answer questions about convergence of GANs.
     For instance, it's argued in<d-cite key="LOSSSURFACE"></d-cite> that the non-convexity
-    of deep neural networks is not as much of an optimization bottleneck as you might imagine
+    of deep neural networks isn't a problem,
     <d-footnote>
       A fact that practitioners already kind of suspected.
-    </d-footnote>,
+    </d-footnote>
     because low-quality local minima of the loss function
-    become exponentially rare as a function of the network size. 
-    It seems worthwhile to check whether this analysis can be 'lifted into GAN space'.
-    In fact, taking theoretical analyses of deep neural networks used as classifiers and attempting to
-    apply these analyses to GANs seems to us a promising meta-algorithm for making progress in this sub-field.
-  </p>
-
-  <p>
-    The final strategy is to model GAN training using notions from game theory<d-cite key="GANGS,BEYONDLOCAL,CHEKHOV"></d-cite>
+    become exponentially rare as the network gets larger. 
+    Can this analysis can be 'lifted into GAN space'?
+    In fact, it seems like a good heuristic to take analyses of deep neural networks used as classifiers and see if they apply to GANs.
+  </li>
+  <li><b>Game Theory</b> - 
+    The final strategy is to model GAN training using notions from game theory<d-cite key="GANGS,BEYONDLOCAL,CHEKHOV"></d-cite>.
     These techniques yield training procedures that provably converge to some kind of approximate nash equilibrium,
     but do so using unreasonably large resource constraints.
     The 'obvious' next step in this case is to try and reduce those resource constraints.
-  </p>
+  </li>
+  </ul>
 
 
 
@@ -571,15 +562,17 @@
   <p>
     It's well known<d-cite key="INTRIGUING"></d-cite> that image classifiers suffer from adversarial examples:
     human-imperceptible perturbations that cause classifiers to give the wrong output when added to images.
-    It's now also known that (under the Statistical Query Model<d-cite key="SQM"></d-cite>)
-    there are classifier tasks that can be learned efficiently (non-robustly) that
-    are exponentially hard to learn robustly<d-cite key="CONSTRAINTS"></d-cite>.
-    These facts are relevant to GANs because the GAN discriminator is an image classifier.
-    However, though there is a large body of literature on GANs and a large body of literature on
-    adversarial examples, there doesn't seem to be much work on how these things relate
+    It's also now known that there are classification problems which can normally be efficiently learned,
+    but are exponentially hard to learn robustly<d-cite key="CONSTRAINTS,SQM"></d-cite>.
+  </p>
+
+  <p>
+    Since the GAN discriminator is an image classifier, one might worry about it suffering from adversarial examples.
+    Despite the large bodies of literature on GANs and adversarial examples, 
+    there doesn't seem to be much work on how they relate.
     <d-footnote>
       There is work on using GANs to generate adversarial examples, but this is not quite the same thing.
-    </d-footnote>.
+    </d-footnote>
     Thus, we can ask the question:
   </p>
 
@@ -590,8 +583,8 @@
   <p>
     How can we begin to think about this problem?
     Consider a fixed discriminator <b>D</b>.
-    Usually when we talk about <b>D</b> having an adversarial example we mean
-    that there is a 'bad' example <b>G(z)</b> that is correctly classified as fake and
+    An adversarial example for <b>D</b> would exist if
+    there were a generator sample <b>G(z)</b> correctly classified as fake and
     a small perturbation <b>p</b> such that <b>G(z) + p</b> is classified as real.
     With a GAN, the concern would be that the gradient update for the generator would yield
     a new generator <b>G'</b> where <b>G'(z) = G(z) + p</b>.
@@ -599,7 +592,7 @@
 
   <p>
     Is this concern realistic?
-    <d-cite key="AEFGM"></d-cite> show that targeted attacks on generative models can work,
+    <d-cite key="AEFGM"></d-cite> show that deliberate attacks on generative models can work,
     but we are more worried about something you might call an 'accidental attack'.
     There are reasons to believe that accidental attacks are less likely.
     First, the generator is only allowed to make one gradient update before
