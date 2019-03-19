@@ -430,15 +430,22 @@
   <h2 id="eval">How Should we Evaluate GANs and When Should we Use Them?</h2>
 
   <p>
-    There is substantial confusion about how GANs should be evaluated.
-    Two popular quantitative metrics are the Inception Score and the
-    FID<d-cite key="IMPROVEDTECHNIQUES,FID"></d-cite>.
-    Both these scores use a pre-trained image classifier and both have
+    When it comes to evaluating GANs, there are many proposals but little consensus.
+    Suggestions include:
+  </p>
+  <ul>
+  <li><b>Inception Score and FID</b> - 
+    Both these scores<d-cite key="IMPROVEDTECHNIQUES,FID"></d-cite>
+    use a pre-trained image classifier and both have
     known issues <d-cite key="INCEPTIONSCOREBAD,FIDBAD"></d-cite>.
-    An especially common criticism is that these scores measure
+    An common criticism is that these scores measure
     'sample quality' and don't really capture 'sample diversity'.
+  </li>
+  <li><b>MS-SSIM</b> - 
     <d-cite key="ACGAN"></d-cite> propose using MS-SSIM<d-cite key="MSSSIM"></d-cite> to
     separately evaluate diversity, but this technique has some issues and hasn't really caught on. 
+  </li>
+  <li><b>AIS</b> - 
     <d-cite key="AIS"></d-cite> propose putting a Gaussian observation model on the outputs
     of a GAN and using annealed importance sampling<d-cite key="AIS2"></d-cite> to estimate
     the log likelihood under this model, but <d-cite key="FLOWGAN"></d-cite> show that
@@ -446,113 +453,124 @@
     <d-footnote>
       The generator being a flow model allows for computation of exact log-likelihoods in this case.
     </d-footnote>.
+  </li>
+  <li><b>Geometry Score</b> - 
     <d-cite key="GEOMETRYSCORE"></d-cite> suggest computing geometric properties of the generated data manifold
     and comparing those properties to the real data.
+  </li>
+  <li><b>Precision and Recall</b> - 
     <d-cite key="PRGAN"></d-cite> attempt to measure both the 'precision' and 'recall' of GANs.
-    Others<d-cite key="GANFIGHT,DRS"></d-cite> have shown that trained GAN discriminators can contain useful information
-    with which both post-processing and evaluation can be performed.
-  </p>
+  </li>
+  <li><b>Skill Rating</b> - 
+    <d-cite key="GANFIGHT,DRS"></d-cite> have shown that trained GAN discriminators can contain useful information
+    with which  evaluation can be performed.
+  </li>
+  </ul>
 
   <p>
     Those are just a small fraction of the proposed GAN evaluation schemes.
-    Though the Inception Score and FID are relatively popular, evaluating GANs is clearly less of a settled
-    issue than evaluating e.g., image classifiers.
+    Although the Inception Score and FID are relatively popular, GAN evaluation is clearly not a settled issue.
     Ultimately, we think that confusion about <i>how to evaluate</i> GANs stems from confusion about
     <i>when to use GANs</i>.
     Thus, we have bundled those two questions into one:
   </p>
 
   <div class="open-problem">
-    What tasks are GANs uniquely suited for, compared to other generative models?
-    How should we evaluate performance on these tasks?
+    When should we use GANs instead of other generative models?<br>
+    How should we evaluate performance in those contexts?
   </div>
 
   <p>
     What should we use GANs for?
-    If you want an actual density model, we think that it makes more sense to use maximum likelihood estimation.
+    If you want an actual density model, GANs probably aren't the best choice.
     There is now good experimental evidence that GANs learn a 'low support' representation of the target dataset
     <d-cite key="FLOWGAN,FLOWGAN2,CONDITIONING"></d-cite>, which means there may be substantial parts of the test
     set to which a GAN (implicitly) assigns zero likelihood.
-    Rather than worrying too much about this
-    <d-footnote>
+  </p>
+
+  <p>
+    Rather than worrying too much about this,<d-footnote>
       Though trying to fix this issue is a valid research agenda as well.
-    </d-footnote>,
+    </d-footnote>
+
     we think it makes sense to focus GAN research on tasks where this is fine or even helpful.
-    One such task is discovering latent factors of variation in datasets.
-    We also think that GANs are likely to be well-suited to tasks with a perceptual flavor.
+    GANs are likely to be well-suited to tasks with a perceptual flavor.
     Graphics applications like image synthesis, image translation, image infilling, and attribute manipulation
     all fall under this umbrella.
   </p>
 
   <p>
     How should we evaluate GANs on these perceptual tasks?
-    When producing outputs for consumption by humans, we would ideally use human judgments.
-    Unfortunately, these are expensive to obtain, so we may have to find automated
-    evaluation procedures that correspond well to human judgment.
-    This task is nontrivial, but there is evidence (from other fields) that it can be
-    done well<d-cite key="MSSSIM"></d-cite>.
+    Ideally we would just use a human judge, but this is expensive.
+    A cheap proxy is to see if a classifier can distinguish between real and fake examples.
+    This is called a classifier two-sample test (C2STs)
+    <d-cite key="CLASSIFIERTWOSAMPLE,PARAMETRIC,FIDBAD"></d-cite>.
+    The main issue with C2STs is that if the Generator has even a minor defect that's systematic across samples
+    (e.g., <d-cite key="CHECKERBOARD"></d-cite>) this will dominate the evaluation.
   </p>
 
   <p>
-    How should we design such procedures?
-    One idea we think hasn't gotten enough attention is to use classifier two-sample tests (C2STs)
-    <d-cite key="CLASSIFIERTWOSAMPLE,PARAMETRIC,FIDBAD"></d-cite>.
-    The main issue with C2STs is that, unless the generator is perfect, it will
-    have some defect (e.g., <d-cite key="CHECKERBOARD"></d-cite>) that the discriminator will notice.
-    We don't want to have to fix all such possible defects before getting an evaluation,
-    so we'd like to make a critic that is blind to that defect.
-    But once we do this, some other defect may pop up, so we will want a new critic, and so on.
-    To avoid this, we envision some kind of 'Gram-Schmidt procedure for critics',
-    which will spit out an ordered list of the most important defects and 
+    Ideally, we'd have a holistic evaluation that isn't dominated by a single factor.
+    One approach might be to make a critic that is blind to the dominant defect.
+    But once we do this, some other defect may dominate, requiring a new critic, and so on.
+    If we do this iteratively, we could get a kind of 'Gram-Schmidt procedure for critics',
+    creating an ordered list of the most important defects and 
     critics that ignore them.
+    Perhaps this can be done by performing PCA on the critic activations<d-cite key="SVCCA"></d-cite> and progressively throwing out
+    more and more of the higher variance components.
   </p>
+
+  <p>
+    Finally, we could evaluate on humans despite the expense.
+    This would allow us to measure the thing that we actually care about.
+    This kind of approach can be made less expensive by predicting human answers and only interacting with a real human when
+    the prediction is uncertain<d-cite key="PREFERENCES"></d-cite>.
+  </p>
+
+
 
 
   <h2 id="batchsize">How does GAN Training Scale with Batch Size?</h2>
   <p>
-    Much recent work<d-cite key="IMAGENET1HOUR,BATCH32,TRAINLONGERGENERALIZEBETTER,DONTDECAY"></d-cite> focuses on training image classification models
-    with large minibatches. 
-    This work is especially relevant given the end of Moore's law<d-cite key="NOMOREMOORE"></d-cite> and
-    the move toward highly parallel custom processors<d-cite key="TPU"></d-cite>.
-    Can the same speed-ups be had for GANs?
-    After all, the discriminator in most GANs is just an image classifier.
-    However, there is a key difference between GAN training and classifier training:
-    When training an image classifier, you would like to take as large of a step as possible in parameter space,
-    but you can't because of gradient noise and curvature.
-    Having a large batch reduces the gradient noise.
-    When training a GAN, you don't necessarily want to take the largest possible step even if you know all exact derivatives.
+    Large minibatches have helped to scale up image classification<d-cite key="IMAGENET1HOUR,BATCH32,TRAINLONGERGENERALIZEBETTER,DONTDECAY,NOISESCALE"></d-cite> --
+    can they also help us scale up GANs?
+    Large minibatches may be especially important for effectively using highly parallel hardware accelerators<d-cite key="NOMOREMOORE,TPU"></d-cite>.
+  </p>
+
+     
+  <p>
+    At first glance, it seems like the answer should be yes --
+    after all, the discriminator in most GANs is just an image classifier.
+    Larger batches can accelerate training if it is bottlenecked on gradient noise.
+    However, GANs have a separate bottleneck that classifiers don't: the training procedure can diverge.
     Thus, we can state our problem:
   </p>
 
   <div class="open-problem">
       How does GAN training scale with batch size?
-      How big is the role gradient noise plays in GAN training?
+      How big a role does gradient noise play in GAN training?
       Can GAN training be modified so that it scales better with batch size?
   </div>
 
     <p>
-      Regarding gradient noise, the best available evidence at present is<d-cite key="BIGGAN"></d-cite>,
-      in which increasing minibatch size from 256 to 2048 significantly improves quantitative results and seems
-      to reduce training time somewhat.
-      However, the effect of batch size on convergence time itself was not systematically studied, so we believe
-      this question remains mostly open.
-      Progress on this front could be made by running experiments where batch size is modified for multiple
-      GAN implementations on multiple datasets.
+      There's some evidence that increasing minibatch size improves quantitative results and reduces training time<d-cite key="BIGGAN"></d-cite>.
+      If this phenomenon is robust, it would suggest that gradient noise is a dominating factor.
+      However, this hasn't been systematically studied, so we believe this question remains open.
     </p>
 
     <p>
-      Regarding modifications to the training procedure, the most promising work we know of is<d-cite key="OTGAN"></d-cite>,
-      In this work, GANs are trained with an objective that (roughly speaking) takes a batch of samples and a batch of training
-      data and computes a soft alignment between the batches that minimizes a transport distance.
-      The effectiveness of this procedure scales superlinearly with the batch size, so algorithms of this flavor
-      seem like good candidates for helping GANs to take advantage of new parallel hardware.
+      Can alternate training procedures make better use of large batches?
+      Optimal Transport GANs<d-cite key="OTGAN"></d-cite> theoretically have better convergence properties than normal GANs,
+      but need a large batch size because they try to align batches of samples and training data.
+      As a result they seem like a promising candidate for scaling to very large batch sizes.
     </p>
 
     <p>
-      Finally, large batch sizes are relevant for synchronous SGD<d-cite key="SYNCSGD"></d-cite>, but that isn't the only way to paralellize SGD.
-      There is also substantial work on scaling up asynchronous SGD for neural networks<d-cite key="LARGEDEAN,ELASTIC,SUYOG,FASGD"></d-cite>.
+      <!-- Finally, large batch sizes are relevant for synchronous SGD<d-cite key="SYNCSGD"></d-cite>, but that isn't the only way to paralellize SGD. -->
+      <!-- There is also substantial work on scaling up asynchronous SGD for neural networks. -->
+      Finally, asynchronous SGD<d-cite key="LARGEDEAN,ELASTIC,SUYOG,FASGD"></d-cite> could be a good alternative for making use of new hardware.
       In this setting, the limiting factor tends to be that gradient updates are computed on 'stale' copies of the parameters. 
-      Given the evidence<d-cite key="CHEKHOV,AVERAGING"></d-cite> that GANs can benefit from training on past parameter snapshots, we might ask if
+      But GANs seem to actually benefit from training on past parameter snapshots<d-cite key="CHEKHOV,AVERAGING"></d-cite>, so we might ask if
       asynchronous SGD interacts in a special way with GAN training.
     </p>
 
@@ -592,17 +610,17 @@
 
   <p>
     Is this concern realistic?
-    <d-cite key="AEFGM"></d-cite> show that deliberate attacks on generative models can work,
+    <d-cite key="AEFGM"></d-cite> shows that deliberate attacks on generative models can work,
     but we are more worried about something you might call an 'accidental attack'.
-    There are reasons to believe that accidental attacks are less likely.
+    There are reasons to believe that these accidental attacks are less likely.
     First, the generator is only allowed to make one gradient update before
     the discriminator is updated again.
-    Current adversarial attacks are typically run for tens of iterations<d-cite key="MADRY"></d-cite>.
+    In contrast, current adversarial attacks are typically run for tens of iterations<d-cite key="MADRY"></d-cite>.
     Second, the generator is optimized given a batch of samples from the prior, and this batch is different
     for every gradient step.
-    Finally, the optimization takes place in the space of parameters of the generator and not pixel space. 
-    However, none of these objections seem decisive, so
-    we think this is a fruitful topic for further exploration.
+    Finally, the optimization takes place in the space of parameters of the generator rather than in pixel space. 
+    However, none of these arguments decisively rules out the generator creating adversarial examples.
+    We think this is a fruitful topic for further exploration.
   </p>
 
 </d-article>
