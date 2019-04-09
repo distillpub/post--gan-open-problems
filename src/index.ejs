@@ -17,7 +17,7 @@
   "authors": [
     {
       "author": "Augustus Odena",
-      "authorURL": "https://https://augustusodena.github.io/",
+      "authorURL": "http://augustusodena.com",
       "affiliation": "Google Brain Team",
       "affiliationURL": "https://g.co/brain"
     }
@@ -154,7 +154,12 @@
   <p>
     We've discussed the trade-off between GANs and Flow Models, but what about Autoregressive Models?
     It turns out that Autoregressive Models can be expressed as Flow Models
-    (because they are both reversible) that are not parallelizable<d-cite key="NFTUTORIAL"></d-cite>.
+    (because they are both reversible<d-cite key="NFTUTORIAL"></d-cite>) that are not parallelizable.
+    <d-footnote>
+      Parallelizable is somewhat imprecise in this context.
+      We mean that sampling from Flow Models must in general be done sequentially, one observation at a time.
+      There may be ways around this limitation though<d-cite key="PARALLELWAVENET"></d-cite>.
+    </d-footnote>
     It also turns out that Autoregressive Models are more time and parameter efficient than Flow Models.
     Thus, GANs are parallel and efficient but not reversible,
     Flow Models are reversible and parallel but not efficient, and
@@ -302,7 +307,7 @@
     gradient estimation as in<d-cite key="SEQGAN"></d-cite>.
     Other, more sophisticated treatments exist<d-cite key="MASKGAN"></d-cite>,
     but as far as we can tell, none of them produce results that are competitive (in terms of perplexity)
-    with likelihood-based <d-cite key="LSTM"></d-cite> language models.
+    with likelihood-based<d-cite key="LSTM"></d-cite> language models.
   </li>
   <li><b>Structured Data</b> -
     What about other non-euclidean structured data, like graphs?
@@ -418,7 +423,7 @@
     because low-quality local minima of the loss function
     become exponentially rare as the network gets larger.
     Can this analysis can be 'lifted into GAN space'?
-    In fact, it seems like a good heuristic to take analyses of deep neural networks used as classifiers and see if they apply to GANs.
+    In fact, it seems like a generally useful heuristic to take analyses of deep neural networks used as classifiers and see if they apply to GANs.
   </li>
   <li><b>Game Theory</b> -
     The final strategy is to model GAN training using notions from game theory<d-cite key="GANGS,BEYONDLOCAL,CHEKHOV"></d-cite>.
@@ -441,7 +446,7 @@
     Both these scores<d-cite key="IMPROVEDTECHNIQUES,FID"></d-cite>
     use a pre-trained image classifier and both have
     known issues <d-cite key="INCEPTIONSCOREBAD,FIDBAD"></d-cite>.
-    An common criticism is that these scores measure
+    A common criticism is that these scores measure
     'sample quality' and don't really capture 'sample diversity'.
   </li>
   <li><b>MS-SSIM</b> -
@@ -640,8 +645,10 @@
 <d-appendix>
   <h3>Acknowledgments</h3>
   <p>
-    We would like to thank Colin Raffel, Ben Poole, Eric Jang, Dustin Tran, Alex Kurakin, David Berthelo,
-    Aurko Roy, Ian Goodfellow, and Chris Olah for helpful discussions and feedback.
+    We would like to thank Colin Raffel, Ben Poole, Eric Jang, Dustin Tran, Alex Kurakin, David Berthelot,
+    Aurko Roy, Ian Goodfellow, and Matt Hoffman for helpful discussions and feedback.
+    We would especially like to single out Chris Olah, who provided substantial feedback on the text and
+    help with editing.
   </p>
 
   <d-footnote-list></d-footnote-list>
