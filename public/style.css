@@ -1,0 +1,117 @@
+d-title ul {
+    grid-column: text;
+    list-style-type: none;
+    padding-inline-start: 0;
+}
+
+d-title ul li {
+    display: flex;
+    flex-flow: row;
+}
+
+d-title ul a {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+d-title ul a:hover {
+    text-decoration: underline;
+}
+
+.problem-number {
+    font-size: 75%;
+    font-weight: 600;
+    color: hsla(206, 50%, 20%, 0.8);
+    margin-right: 2em;
+    white-space: nowrap;
+}
+
+d-title li {
+    margin-bottom: .75em;
+}
+
+d-title li:last-of-type {
+    margin-bottom: 0;
+}
+
+#figure-1-gan-progress {
+    display: grid;
+    grid-template-areas:
+        "image cite"
+        "image cite"
+        "image cite"
+        "image cite";
+    grid-template-columns: 1fr min-content;
+    grid-gap: .5em;
+    line-height: 1.3;
+    align-items: center;
+}
+
+#figure-1-gan-progress img {
+    grid-area: image;
+}
+#figure-1-gan-progress cite {
+    grid-column: cite;
+    font-style: normal;
+}
+
+#figure-1-gan-progress cite .author {
+    white-space: nowrap;
+}
+
+d-article {
+    counter-reset: problem;
+}
+
+.open-problem {
+    display: flex;
+    color: #333;
+    background-color: hsla(206, 90%, 20%, 0.03);
+    border-left: 3px solid hsla(206, 50%, 20%, 0.8);
+    padding: 1em 2em;
+    margin-bottom: 1em;
+
+    counter-increment: problem;
+}
+
+/* .open-problem p:first-of-type::before {
+    display: block;
+    font-size: 75%;
+    font-weight: 600;
+    color: hsla(206, 50%, 20%, 0.8);
+    content: "Problem " counter(problem);
+    margin-bottom: .75em;
+} */
+
+.open-problem p {
+    margin-bottom: .75em;
+}
+
+.open-problem p:last-of-type {
+    margin-bottom: 0;
+}
+
+#table-1-tradeoffs th {
+    white-space: nowrap;
+}
+
+#table-1-tradeoffs tbody th {
+    font-weight: initial;
+    border-bottom: 1px solid rgb(242,242,242);
+}
+
+#table-1-tradeoffs tbody tr:last-of-type th {
+    border-bottom: inherit;
+}
+
+#table-1-tradeoffs td,
+#table-1-tradeoffs thead th {
+    text-align: center;
+}
+
+#table-1-tradeoffs td {
+    border-color: rgb(242,242,242);
+}
+#table-1-tradeoffs td.no {
+    background-color: #f6f6f6;
+}
