@@ -486,7 +486,7 @@ d-article {
     <d-footnote>
       These assumptions are very strict.
       The referenced paper assumes (roughly speaking) that
-      the equilbrium we are looking for exists and that
+      the equilibrium we are looking for exists and that
       we are already very close to it.
     </d-footnote>,
     this simultaneous optimization
@@ -518,15 +518,17 @@ d-article {
   <ul>
   <li><b>Simplifying Assumptions</b> -
     The first strategy is to make simplifying assumptions about the generator and discriminator.
-    For example, the simplifed LGQ GAN<d-cite key="LGQGAN"></d-cite> -- linear generator, gaussian data, and quadratic discriminator --
+    For example, the simplified LGQ GAN<d-cite key="LGQGAN"></d-cite> -- linear generator, Gaussian data, and quadratic discriminator --
     can be shown to be globally convergent, if optimized with a special technique<d-cite key="CROSSINGTHECURL,SGA"></d-cite>
     and some additional assumptions.<d-footnote>
       Among other things, it's assumed that we can first learn the means of the Gaussian and then learn the variances.
     </d-footnote>
+    As another example, <d-cite key="APPROXGAN1,APPROXGAN2"></d-cite> show under different simplifying assumptions that
+    certain types of GANs perform a mixture of moment matching and maximum likelihood estimation.
 
     It seems promising to gradually relax those assumptions to see what happens.
     For example, we could move away from unimodal distributions<d-cite key="LIMITATIONS"></d-cite>.
-    This is a natural relaxation to study, because 'mode collapse' is a standard GAN pathology.
+    This is a natural relaxation to study because 'mode collapse' is a standard GAN pathology.
   </li>
   <li><b>Use Techniques from Normal Neural Networks</b> -
     The second strategy is to  apply techniques for analyzing normal neural networks (which are also non-convex)
@@ -538,12 +540,12 @@ d-article {
     </d-footnote>
     because low-quality local minima of the loss function
     become exponentially rare as the network gets larger.
-    Can this analysis can be 'lifted into GAN space'?
+    Can this analysis be 'lifted into GAN space'?
     In fact, it seems like a generally useful heuristic to take analyses of deep neural networks used as classifiers and see if they apply to GANs.
   </li>
   <li><b>Game Theory</b> -
     The final strategy is to model GAN training using notions from game theory<d-cite key="GANGS,BEYONDLOCAL,CHEKHOV"></d-cite>.
-    These techniques yield training procedures that provably converge to some kind of approximate nash equilibrium,
+    These techniques yield training procedures that provably converge to some kind of approximate Nash equilibrium,
     but do so using unreasonably large resource constraints.
     The 'obvious' next step in this case is to try and reduce those resource constraints.
   </li>
@@ -628,7 +630,7 @@ d-article {
 
   <p>
     How should we evaluate GANs on these perceptual tasks?
-    Ideally we would just use a human judge, but this is expensive.
+    Ideally, we would just use a human judge, but this is expensive.
     A cheap proxy is to see if a classifier can distinguish between real and fake examples.
     This is called a classifier two-sample test (C2STs)
     <d-cite key="CLASSIFIERTWOSAMPLE,PARAMETRIC,FIDBAD"></d-cite>.
@@ -692,7 +694,7 @@ d-article {
       Can alternate training procedures make better use of large batches?
       Optimal Transport GANs<d-cite key="OTGAN"></d-cite> theoretically have better convergence properties than normal GANs,
       but need a large batch size because they try to align batches of samples and training data.
-      As a result they seem like a promising candidate for scaling to very large batch sizes.
+      As a result, they seem like a promising candidate for scaling to very large batch sizes.
     </p>
 
     <p>
